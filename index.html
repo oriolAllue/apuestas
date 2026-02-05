@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard de Apuestas - Datos Automáticos</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <!-- Coloca esto en el head -->
+  <link rel="stylesheet" href="./css/archivo.css" />
+</head>
+
+<body>
+  <div class="container">
+    <header>
+      <div class="dashboard-title">
+        <h1>
+          <i class="fas fa-chart-line"></i> Dashboard de Gestión de Apuestas
+        </h1>
+        <div>2026</div>
+        <label class="dark-mode-toggle">
+          <input type="checkbox" id="dark-mode-switch">
+          <span class="slider"></span>
+          <i class="fas fa-moon"></i>
+        </label>
+      </div>
+    </header>
+
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('dashboard')">Dashboard</div>
+      <div class="tab" onclick="switchTab('data')">Gestión de Datos</div>
+      <div class="tab" onclick="switchTab('analysis')">
+        Análisis Detallado
+      </div>
+    </div>
+
+    <div id="dashboard-tab" class="tab-content active">
+      <div class="kpi-cards">
+        <div class="kpi-card">
+          <h3>BALANCE TOTAL</h3>
+          <div class="value negative" id="total-balance">-3.390,68 €</div>
+          <div>Actualizado: <span id="update-time">Hoy</span></div>
+        </div>
+        <div class="kpi-card">
+          <h3>TOTAL INGRESOS</h3>
+          <div class="value" id="total-ingresos">10.680,00 €</div>
+          <div><span id="ingresos-count">86</span> transacciones</div>
+        </div>
+        <div class="kpi-card">
+          <h3>TOTAL RETIRADAS</h3>
+          <div class="value" id="total-retiradas">7.289,32 €</div>
+          <div><span id="retiradas-count">18</span> transacciones</div>
+        </div>
+        <div class="kpi-card">
+          <h3>MEJOR MES</h3>
+          <div class="value positive" id="mejor-mes">Marzo (+1.135,69 €)</div>
+          <div>Peor: <span id="peor-mes">Enero (-2.169,11 €)</span></div>
+        </div>
+      </div>
+
+      <div class="filters">
+        <div class="filter-item">
+          <label for="month-filter"><i class="fas fa-calendar"></i> Mes:</label>
+          <select id="month-filter">
+            <option value="all">Todos los meses</option>
+            <option value="1">Enero</option>
+            <option value="2">Febrero</option>
+            <option value="3">Marzo</option>
+            <option value="4">Abril</option>
+            <option value="5">Mayo</option>
+            <option value="6">Junio</option>
+            <option value="7">Julio</option>
+            <option value="8">Agosto</option>
+          </select>
+        </div>
+        <div class="filter-item">
+          <label for="type-filter"><i class="fas fa-filter"></i> Tipo:</label>
+          <select id="type-filter">
+            <option value="all">Todos los tipos</option>
+            <option value="ingreso">Ingresos</option>
+            <option value="retirada">Retiradas</option>
+          </select>
+        </div>
+        <div class="filter-item">
+          <label for="search"><i class="fas fa-search"></i> Buscar:</label>
+          <input type="text" id="search" placeholder="Palabra clave..." />
+        </div>
+        <div class="filter-item">
+          <button class="btn btn-primary" onclick="updateCharts()">
+            <i class="fas fa-sync-alt"></i> Actualizar
+          </button>
+        </div>
+      </div>
+
+      <div class="dashboard-grid">
+        <div class="main-content">
+          <div class="chart-container">
+            <div class="chart-title">
+              <span>Evolución Mensual de Balance</span>
+              <div class="export-options">
+                <button class="btn btn-primary" onclick="exportChart('monthlyChart', 'evolucion-mensual')">
+                  <i class="fas fa-download"></i> Exportar
+                </button>
+              </div>
+            </div>
+            <canvas id="monthlyChart"></canvas>
+          </div>
+
+          <div class="chart-container">
+            <div class="chart-title">
+              <span>Distribución por Método de Pago</span>
+              <div class="export-options">
+                <button class="btn btn-primary" onclick="exportChart('paymentMethodChart', 'distribucion-pagos')">
+                  <i class="fas fa-download"></i> Exportar
+                </button>
+              </div>
+            </div>
+            <canvas id="paymentMethodChart"></canvas>
+          </div>
+        </div>
+
+        <div class="sidebar">
+          <div class="chart-container">
+            <div class="chart-title">Resumen por Mes</div>
+            <canvas id="summaryChart"></canvas>
+          </div>
+
+          <div class="chart-container">
+            <div class="chart-title">Proporción Ingresos vs Retiradas</div>
+            <canvas id="ratioChart"></canvas>
+          </div>
+
+          <div class="chart-container">
+            <div class="chart-title">Tendencia por Día de la Semana</div>
+            <canvas id="weekdayChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="data-tab" class="tab-content">
+      <div class="data-form">
+        <div class="form-title">
+          <span><i class="fas fa-plus-circle"></i> Añadir Nueva Transacción</span>
+        </div>
+        <form id="transaction-form">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="date">Fecha y Hora</label>
+              <input type="datetime-local" id="date" required />
+            </div>
+            <div class="form-group">
+              <label for="type">Tipo de Transacción</label>
+              <select id="type" required>
+                <option value="">Seleccionar tipo</option>
+                <option value="ingreso">Ingreso</option>
+                <option value="retirada">Retirada</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="amount">Cantidad (€)</label>
+              <input type="number" id="amount" step="0.01" placeholder="Ej: 100.00" required />
+            </div>
+            <div class="form-group">
+              <label for="method">Método de Pago</label>
+              <select id="method" required>
+                <option value="">Seleccionar método</option>
+                <option value="PayPal">PayPal</option>
+                <option value="Apple Pay">Apple Pay</option>
+                <option value="Bizum">Bizum</option>
+                <option value="Giro bancario">Giro bancario</option>
+              </select>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-success">
+            <i class="fas fa-save"></i> Guardar Transacción
+          </button>
+          <button type="button" class="btn btn-danger" id="cancel-edit" style="display: none" onclick="cancelEdit()">
+            <i class="fas fa-times"></i> Cancelar
+          </button>
+        </form>
+      </div>
+
+      <div class="data-actions">
+        <button class="btn btn-primary" onclick="loadSampleData()">
+          <i class="fas fa-download"></i> Cargar Datos de Ejemplo
+        </button>
+        <button class="btn btn-danger" onclick="clearAllData()">
+          <i class="fas fa-trash"></i> Eliminar Todos los Datos
+        </button>
+        <button class="btn btn-success" onclick="exportData()">
+          <i class="fas fa-file-export"></i> Exportar Datos
+        </button>
+      </div>
+
+      <!-- Sección para cargar CSV (nueva) -->
+      <div class="csv-upload">
+        <div class="csv-upload-title">
+          <i class="fas fa-file-csv"></i> Cargar datos desde CSV
+        </div>
+        <div class="csv-upload-options">
+          <div class="file-input-container">
+            <div class="file-input-button">
+              <i class="fas fa-upload"></i> Seleccionar archivo CSV1
+            </div>
+            <input type="file" id="csv-file" accept=".csv" onchange="handleCSVUpload(this.files)" />
+          </div>
+          <span id="file-name" class="file-name">Ningún archivo seleccionado</span>
+          <button class="btn btn-primary" onclick="processCSV()" id="process-csv-btn" disabled>
+            <i class="fas fa-sync-alt"></i> Procesar CSV
+          </button>
+        </div>
+      </div>
+
+      <!-- Nuevo: Filtros para la tabla -->
+      <div class="table-filters">
+        <div class="filter-item">
+          <label for="table-month-filter"><i class="fas fa-calendar"></i> Mes:</label>
+          <select id="table-month-filter">
+            <option value="all">Todos los meses</option>
+            <option value="1">Enero</option>
+            <option value="2">Febrero</option>
+            <option value="3">Marzo</option>
+            <option value="4">Abril</option>
+            <option value="5">Mayo</option>
+            <option value="6">Junio</option>
+            <option value="7">Julio</option>
+            <option value="8">Agosto</option>
+            <option value="9">Septiembre</option>
+            <option value="10">Octubre</option>
+            <option value="11">Noviembre</option>
+            <option value="12">Diciembre</option>
+          </select>
+        </div>
+        <div class="filter-item">
+          <label for="table-type-filter"><i class="fas fa-filter"></i> Tipo:</label>
+          <select id="table-type-filter">
+            <option value="all">Todos los tipos</option>
+            <option value="ingreso">Ingresos</option>
+            <option value="retirada">Retiradas</option>
+          </select>
+        </div>
+        <div class="filter-item">
+          <label for="table-method-filter"><i class="fas fa-credit-card"></i> Método:</label>
+          <select id="table-method-filter">
+            <option value="all">Todos los métodos</option>
+            <option value="PayPal">PayPal</option>
+            <option value="Apple Pay">Apple Pay</option>
+            <option value="Bizum">Bizum</option>
+            <option value="Giro bancario">Giro bancario</option>
+          </select>
+        </div>
+        <div class="filter-item">
+          <label for="table-search"><i class="fas fa-search"></i> Buscar:</label>
+          <input type="text" id="table-search" placeholder="Buscar en todas las columnas...">
+        </div>
+        <div class="filter-item">
+          <button class="btn btn-primary" onclick="applyTableFilters()"><i class="fas fa-filter"></i> Aplicar
+            Filtros</button>
+          <button class="btn btn-secondary" onclick="clearTableFilters()"><i class="fas fa-times"></i> Limpiar</button>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table id="transactions-table">
+          <thead>
+            <tr>
+              <th data-sort="fecha">Fecha <i class="fas fa-sort"></i></th>
+              <th data-sort="tipo">Tipo <i class="fas fa-sort"></i></th>
+              <th data-sort="metodo">Método <i class="fas fa-sort"></i></th>
+              <th data-sort="cantidad">Cantidad <i class="fas fa-sort"></i></th>
+              <th data-sort="mes">Mes <i class="fas fa-sort"></i></th>
+              <th data-sort="casa">Casa <i class="fas fa-sort"></i></th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Los datos se cargarán dinámicamente con JavaScript -->
+          </tbody>
+        </table>
+      </div>
+
+      
+    </div>
+    <div id="analysis-tab" class="tab-content">
+      <div class="chart-container">
+        <div class="chart-title">Análisis de Rentabilidad por Mes</div>
+        <canvas id="profitabilityChart"></canvas>
+        <div id="noProfitabilityData" style="display: none;">No hay datos disponibles para mostrar.</div>
+      </div>
+    
+      <div class="kpi-cards">
+        <div class="kpi-card">
+          <h3>INGRESO PROMEDIO</h3>
+          <div class="value" id="ingreso-promedio">0,00 €</div>
+          <div>Por transacción</div>
+        </div>
+        <div class="kpi-card">
+          <h3>RETIRADA PROMEDIO</h3>
+          <div class="value" id="retirada-promedio">0,00 €</div>
+          <div>Por transacción</div>
+        </div>
+        <div class="kpi-card">
+          <h3>DÍAS CON MÁS ACTIVIDAD</h3>
+          <div class="value" id="dia-activo">Ninguno</div>
+          <div id="transacciones-dia">0 transacciones</div>
+        </div>
+        <div class="kpi-card">
+          <h3>MÉTODO PREDOMINANTE</h3>
+          <div class="value" id="metodo-predominante">Ninguno</div>
+          <div id="porcentaje-metodo">0% de transacciones</div>
+        </div>
+      </div>
+    </div>
+    <div class="notification" id="notification">
+      Transacción añadida correctamente
+    </div>
+
+    <!-- Coloca esto al final del body para mejor rendimiento -->
+    <script src="./js/archivo.js"></script>
+</body>
+
+</html>
