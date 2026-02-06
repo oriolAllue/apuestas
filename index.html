@@ -281,7 +281,7 @@
         </table>
       </div>
 
-      
+
     </div>
     <div id="analysis-tab" class="tab-content">
       <div class="chart-container">
@@ -289,7 +289,7 @@
         <canvas id="profitabilityChart"></canvas>
         <div id="noProfitabilityData" style="display: none;">No hay datos disponibles para mostrar.</div>
       </div>
-    
+
       <div class="kpi-cards">
         <div class="kpi-card">
           <h3>INGRESO PROMEDIO</h3>
@@ -319,6 +319,13 @@
 
     <!-- Coloca esto al final del body para mejor rendimiento -->
     <script src="./js/archivo.js"></script>
+    <!-- Botones para interactuar con los filtros y datos -->
+    <button id="apply-filters-btn">Aplicar Filtros</button>
+    <button id="clear-filters-btn">Limpiar Filtros</button>
+    <button id="load-sample-data-btn">Cargar Datos de Ejemplo</button>
+
+    <!-- Importar el archivo principal -->
+    <script src="js/main.js" type="module"></script>
 </body>
 
 </html>
