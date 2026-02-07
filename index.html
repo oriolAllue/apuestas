@@ -316,17 +316,25 @@
     </div>
 
     <!-- Nueva pestaña para Crypto -->
-    <div id="crypto-tab" class="tab-content" style="display: none;">
-      <h2>Crypto</h2>
-      <p>Sube un fichero para encriptar o desencriptar credenciales.</p>
+    <div id="crypto-tab" class="tab-content">
+      <div class="data-form">
+        <div class="form-title">
+          <h2>Crypto</h2>
+          <p>Sube un fichero para encriptar o desencriptar credenciales.</p>
+        </div>
 
-      <label for="crypto-file">Selecciona un fichero:</label>
-      <input type="file" id="crypto-file" />
+        <div class="form-group">
+          <label for="crypto-file">Selecciona un fichero:</label>
+          <input type="file" id="crypto-file" />
+        </div>
 
-      <button id="encrypt-btn">Encriptar y Descargar</button>
-      <button id="decrypt-btn">Desencriptar</button>
+        <div class="form-actions">
+          <button id="encrypt-btn" class="btn btn-primary">Encriptar y Descargar</button>
+          <button id="decrypt-btn" class="btn btn-success">Desencriptar</button>
+        </div>
 
-      <pre id="crypto-output"></pre>
+        <pre id="crypto-output" class="output"></pre>
+      </div>
     </div>
 
     <div class="notification" id="notification">
@@ -425,17 +433,23 @@
       function switchTab(tabId) {
         // Ocultar todas las pestañas
         document.querySelectorAll('.tab-content').forEach(tab => {
-          tab.style.display = 'none';
+          tab.classList.remove('active');
         });
 
         // Mostrar la pestaña seleccionada
-        document.getElementById(`${tabId}-tab`).style.display = 'block';
+        const selectedTab = document.getElementById(`${tabId}-tab`);
+        if (selectedTab) {
+          selectedTab.classList.add('active');
+        }
 
         // Actualizar la clase activa en las pestañas
         document.querySelectorAll('.tab').forEach(tab => {
           tab.classList.remove('active');
         });
-        document.querySelector(`.tab[onclick="switchTab('${tabId}')"]`).classList.add('active');
+        const activeTab = document.querySelector(`.tab[onclick="switchTab('${tabId}')"]`);
+        if (activeTab) {
+          activeTab.classList.add('active');
+        }
       }
 
       // Inicializar mostrando la pestaña activa por defecto
