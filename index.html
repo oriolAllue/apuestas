@@ -320,17 +320,22 @@
       <div class="data-form">
         <div class="form-title">
           <h2>Crypto</h2>
-          <p>Sube un fichero para encriptar o desencriptar credenciales.</p>
+          <p>Sube un fichero de credenciales para habilitar las opciones de encriptar y desencriptar.</p>
         </div>
 
         <div class="form-group">
-          <label for="crypto-file">Selecciona un fichero:</label>
-          <input type="file" id="crypto-file" />
+          <label for="credentials-file">Selecciona un fichero de credenciales:</label>
+          <input type="file" id="credentials-file" />
         </div>
 
-        <div class="form-actions">
-          <button id="encrypt-btn" class="btn btn-primary">Encriptar y Descargar</button>
-          <button id="decrypt-btn" class="btn btn-success">Desencriptar</button>
+        <div class="form-group" id="crypto-actions" style="display: none;">
+          <label for="crypto-file">Selecciona un fichero para encriptar o desencriptar:</label>
+          <input type="file" id="crypto-file" disabled />
+
+          <div class="form-actions">
+            <button id="encrypt-btn" class="btn btn-primary" disabled>Encriptar y Descargar</button>
+            <button id="decrypt-btn" class="btn btn-success" disabled>Desencriptar</button>
+          </div>
         </div>
 
         <pre id="crypto-output" class="output"></pre>
@@ -364,7 +369,7 @@
         document.getElementById("decrypt-btn").disabled = true;
 
         // Manejar carga de credenciales
-        document.getElementById("crypto-file").addEventListener("change", async (event) => {
+        document.getElementById("credentials-file").addEventListener("change", async (event) => {
           const file = event.target.files[0];
           if (!file) {
             alert("Por favor, selecciona un fichero de credenciales.");
@@ -375,6 +380,9 @@
             const credentials = await loadCredentialsFromFile(file);
             cryptoKey = await importKey(credentials); // Importar clave desde credenciales
             credentialsLoaded = true;
+
+            // Mostrar acciones de Crypto
+            document.getElementById("crypto-actions").style.display = "block";
 
             // Habilitar botones
             document.getElementById("encrypt-btn").disabled = false;

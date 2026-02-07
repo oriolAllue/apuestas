@@ -115,4 +115,4 @@ export async function loadCredentialsFromFile(file) {
 }
 
 // Exportar funciones necesarias
-export { generateKey, exportKey, importKey, encryptData, decryptData, handleFileUpload, downloadFile, loadCredentialsFromFile };
+export { generateKey, exportKey, importKey, encryptData, decryptData, handleFileUpload, downloadFile };

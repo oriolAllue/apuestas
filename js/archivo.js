@@ -750,48 +750,29 @@ let transactions = [];
 
 // Función para cambiar pestañas
 function switchTab(tabName) {
-  document
-    .querySelectorAll(".tab")
-    .forEach((tab) => tab.classList.remove("active"));
-  document
-    .querySelectorAll(".tab-content")
-    .forEach((content) => content.classList.remove("active"));
+  // Ocultar todas las pestañas
+  document.querySelectorAll(".tab-content").forEach((tab) => {
+    tab.classList.remove("active");
+  });
 
-     // Añade la clase 'active' a la pestaña seleccionada
-  document.querySelector(`.tab[onclick="switchTab('${tabName}')"]`).classList.add("active");
-  document.getElementById(`${tabName}-tab`).classList.add("active");
-
-  // Si cambiamos a la pestaña de datos, actualizamos la tabla
-  if (tabName === "data") {
-    renderTransactionsTable();
+  // Mostrar la pestaña seleccionada
+  const selectedTab = document.getElementById(`${tabName}-tab`);
+  if (selectedTab) {
+    selectedTab.classList.add("active");
   }
 
-  // Si cambiamos a la pestaña de dashboard, actualizamos los gráficos con los filtros actuales
-  if (tabName === "dashboard") {
-    const monthFilter = document.getElementById("month-filter").value;
-    const typeFilter = document.getElementById("type-filter").value;
-
-    updateCharts({
-      month: monthFilter,
-      type: typeFilter,
-    });
+  // Actualizar la clase activa en las pestañas
+  document.querySelectorAll(".tab").forEach((tab) => {
+    tab.classList.remove("active");
+  });
+  const activeTab = document.querySelector(`.tab[onclick="switchTab('${tabName}')"]`);
+  if (activeTab) {
+    activeTab.classList.add("active");
   }
-  // Si cambiamos a la pestaña de análisis, inicializamos el análisis
-  if (tabName === "analysis") {
-    // Destruir gráficos existentes si es necesario
-    if (profitabilityChart) {
-      profitabilityChart.destroy();
-      profitabilityChart = null;
-    }
 
+  // Inicializar pestaña de análisis solo si está activa
+  if (tabName === "analysis" && selectedTab.classList.contains("active")) {
     initAnalysisTab();
-    // Mostrar mensaje si no hay datos
-    const noDataMsg = document.getElementById("noProfitabilityData");
-    if (transactions.length === 0) {
-      noDataMsg.style.display = "block";
-    } else {
-      noDataMsg.style.display = "none";
-    }
   }
 }
 
@@ -2282,8 +2263,7 @@ function addTransaction(event) {
   if (!date || !type || isNaN(amount) || !method) {
     showNotification(
       "Por favor, complete todos los campos correctamente",
-      false
-    );
+      false    );
     return;
   }
   // Formatear fecha correctamente (YYYY-MM-DD HH:MM)
