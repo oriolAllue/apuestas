@@ -33,6 +33,7 @@
       <div class="tab" onclick="switchTab('analysis')">
         Análisis Detallado
       </div>
+      <div class="tab" onclick="switchTab('crypto')">Crypto</div> <!-- Nueva pestaña Crypto -->
     </div>
 
     <div id="dashboard-tab" class="tab-content active">
@@ -313,6 +314,21 @@
         </div>
       </div>
     </div>
+
+    <!-- Nueva pestaña para Crypto -->
+    <div id="crypto-tab" class="tab-content" style="display: none;">
+      <h2>Crypto</h2>
+      <p>Sube un fichero para encriptar o desencriptar credenciales.</p>
+
+      <label for="crypto-file">Selecciona un fichero:</label>
+      <input type="file" id="crypto-file" />
+
+      <button id="encrypt-btn">Encriptar y Descargar</button>
+      <button id="decrypt-btn">Desencriptar</button>
+
+      <pre id="crypto-output"></pre>
+    </div>
+
     <div class="notification" id="notification">
       Transacción añadida correctamente
     </div>
@@ -326,6 +342,108 @@
 
     <!-- Importar el archivo principal -->
     <script src="js/main.js" type="module"></script>
+
+    <!-- Script para manejar la pestaña Crypto con validación de credenciales -->
+    <script type="module">
+      import { generateKey, importKey, handleFileUpload, downloadFile, loadCredentialsFromFile } from "./js/modules/cryptoCredentials.js";
+
+      let cryptoKey;
+      let credentialsLoaded = false;
+
+      document.addEventListener("DOMContentLoaded", async () => {
+        // Deshabilitar botones inicialmente
+        document.getElementById("encrypt-btn").disabled = true;
+        document.getElementById("decrypt-btn").disabled = true;
+
+        // Manejar carga de credenciales
+        document.getElementById("crypto-file").addEventListener("change", async (event) => {
+          const file = event.target.files[0];
+          if (!file) {
+            alert("Por favor, selecciona un fichero de credenciales.");
+            return;
+          }
+
+          try {
+            const credentials = await loadCredentialsFromFile(file);
+            cryptoKey = await importKey(credentials); // Importar clave desde credenciales
+            credentialsLoaded = true;
+
+            // Habilitar botones
+            document.getElementById("encrypt-btn").disabled = false;
+            document.getElementById("decrypt-btn").disabled = false;
+
+            alert("Credenciales cargadas correctamente.");
+          } catch (error) {
+            alert("Error al cargar las credenciales: " + error);
+          }
+        });
+
+        // Manejar encriptación
+        document.getElementById("encrypt-btn").addEventListener("click", async () => {
+          if (!credentialsLoaded) {
+            alert("Por favor, carga un fichero de credenciales primero.");
+            return;
+          }
+
+          const fileInput = document.getElementById("crypto-file");
+          if (fileInput.files.length === 0) {
+            alert("Por favor, selecciona un fichero para encriptar.");
+            return;
+          }
+
+          const file = fileInput.files[0];
+          const encryptedContent = await handleFileUpload(file, cryptoKey, false);
+          downloadFile(encryptedContent, "encrypted-credentials.json");
+        });
+
+        // Manejar desencriptación
+        document.getElementById("decrypt-btn").addEventListener("click", async () => {
+          if (!credentialsLoaded) {
+            alert("Por favor, carga un fichero de credenciales primero.");
+            return;
+          }
+
+          const fileInput = document.getElementById("crypto-file");
+          if (fileInput.files.length === 0) {
+            alert("Por favor, selecciona un fichero para desencriptar.");
+            return;
+          }
+
+          const file = fileInput.files[0];
+          try {
+            const decryptedContent = await handleFileUpload(file, cryptoKey, true);
+            document.getElementById("crypto-output").textContent = decryptedContent;
+          } catch (error) {
+            alert("Error al desencriptar el fichero. Asegúrate de que es un fichero válido.");
+          }
+        });
+      });
+    </script>
+
+    <!-- Script para manejar el cambio de pestañas -->
+    <script>
+      function switchTab(tabId) {
+        // Ocultar todas las pestañas
+        document.querySelectorAll('.tab-content').forEach(tab => {
+          tab.style.display = 'none';
+        });
+
+        // Mostrar la pestaña seleccionada
+        document.getElementById(`${tabId}-tab`).style.display = 'block';
+
+        // Actualizar la clase activa en las pestañas
+        document.querySelectorAll('.tab').forEach(tab => {
+          tab.classList.remove('active');
+        });
+        document.querySelector(`.tab[onclick="switchTab('${tabId}')"]`).classList.add('active');
+      }
+
+      // Inicializar mostrando la pestaña activa por defecto
+      document.addEventListener('DOMContentLoaded', () => {
+        switchTab('dashboard');
+      });
+    </script>
+  </div>
 </body>
 
 </html>
