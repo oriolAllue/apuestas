@@ -113,3 +113,6 @@ export async function loadCredentialsFromFile(file) {
     reader.readAsText(file);
   });
 }
+
+// Exportar funciones necesarias
+export { generateKey, exportKey, importKey, encryptData, decryptData, handleFileUpload, downloadFile, loadCredentialsFromFile };

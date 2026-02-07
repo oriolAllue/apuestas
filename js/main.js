@@ -13,19 +13,17 @@ window.addEventListener("DOMContentLoaded", () => {
   document.getElementById("load-sample-data-btn").addEventListener("click", loadSampleData);
 });
 
-// Tab switching logic
+// Ensure only one tab content is visible at a time
 function setupTabs() {
   const tabs = document.querySelectorAll(".tab");
   const tabContents = document.querySelectorAll(".tab-content");
 
   tabs.forEach((tab, index) => {
     tab.addEventListener("click", () => {
-      // Remove active class from all tabs and contents
-      tabs.forEach((t) => t.classList.remove("active"));
+      // Hide all tab contents
       tabContents.forEach((content) => content.classList.remove("active"));
 
-      // Add active class to the clicked tab and corresponding content
-      tab.classList.add("active");
+      // Show the selected tab content
       tabContents[index].classList.add("active");
     });
   });
